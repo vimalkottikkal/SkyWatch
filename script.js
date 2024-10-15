@@ -3,6 +3,11 @@ const cityInput = document.querySelector(".city_input")
 const API_KEY = "6d250527c2045535a077ca81b153c18a";
 const currentWeatherDiv = document.querySelector(".current_weather")
 const weatherCardsDiv = document.querySelector(".weather_cards")
+let debounceTimeout;
+searchButton.addEventListener("click", () => {
+    clearTimeout(debounceTimeout);
+    debounceTimeout = setTimeout(getCityCoordinates, 300); 
+});
 
 const createWeatherCard = (cityName, weatherItem, index)=>{
     if(index==0){
@@ -58,9 +63,11 @@ const getWeatherDetails = (cityName, lat, lon) => {
     })
 }
 
-const getCityCoordinates = () =>{
+const getCityCoordinates = async () =>{
     const cityName = cityInput.value.trim()
     if(!cityName) return;
+    searchButton.disabled = true; 
+
     const GeoCoding_API = `http://api.openweathermap.org/geo/1.0/direct?q=${cityName}&limit=1&appid=${API_KEY}`
     
     fetch(GeoCoding_API).then(res=>res.json()).then(data=>{
@@ -69,6 +76,8 @@ const getCityCoordinates = () =>{
         getWeatherDetails(name, lat, lon)
     }).catch(()=>{
         alert("Error occured")
-    })
-}
+    }).finally(() => {
+        searchButton.disabled = false; 
+    });
+};
 searchButton.addEventListener("click", getCityCoordinates);
